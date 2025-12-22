@@ -16,7 +16,22 @@ Antes de rodar o script, você precisa ter instalado em sua máquina:
 3. **Node.js** (Utilizado pelo extrator do yt-dlp)
 
 ## Como usar
+Vá para a pagina de releases e baixe o binario
 
+https://github.com/AndreXime/youtube-downloader/releases
+
+E dê permissão de execução ao binario
+
+```bash
+chmod +x youtube-downloader
+```
+
+Execute o binario
+```bash
+./youtube-downloader
+```
+
+## Fazendo build
 1. Clone o repositório:
 ```bash
 git clone https://github.com/AndreXime/youtube-downloader.git
