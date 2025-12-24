@@ -4,6 +4,13 @@ import (
 	"fmt"
 )
 
+var AppState struct {
+	Link     string
+	Format   string
+	Playlist bool
+	Folder   string
+}
+
 func main() {
 	fmt.Println(Title.Render("YouTube Downloader CLI"))
 
@@ -12,9 +19,10 @@ func main() {
 		return
 	}
 
-	// Pega inputs
-	link, format, playlist, ok := GetInputs()
-	if !ok { return }
+	if err := GetInputs(); err != nil {
+		fmt.Println(Err.Render(err.Error()))
+		return
+	}
 
 	fmt.Println(Inf.Render("Iniciando... (ctrl+z para encerrar)"))
 
@@ -24,7 +32,7 @@ func main() {
 
 	// Roda download em background
 	go func() {
-		errCh <- Run(link, playlist, format, progressCh)
+		errCh <- Run(progressCh)
 	}()
 
 	// Trava a main thread mostrando a UI até acabar

@@ -15,26 +15,18 @@ var (
 	Inf   = lipgloss.NewStyle().Foreground(lipgloss.Color("208"))
 )
 
-func GetInputs() (string, string, bool, bool) {
-	var link string
-	var format string
-	var playlist bool
+func GetInputs() error {
+	customTheme := huh.ThemeCharm()
 
-	customTheme := huh.ThemeCharm() // Baseado no tema padrão, mas vamos tunar:
-	
-	// Cor da pergunta quando você está nela (Focused)
 	customTheme.Focused.Title = lipgloss.NewStyle().Foreground(lipgloss.Color("208")).Bold(true)
-	
-	// Cor da pergunta após você já ter respondido (Blurred/Compelted)
-	// Isso dá o feedback de "aceito" que você quer
-	customTheme.Blurred.Title = lipgloss.NewStyle().Foreground(lipgloss.Color("240")) // Cinza escuro
-	customTheme.Blurred.SelectedOption = lipgloss.NewStyle().Foreground(lipgloss.Color("42")) // Verde para a opção escolhida
+	customTheme.Blurred.Title = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	customTheme.Blurred.SelectedOption = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
 
 	form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
 				Title("Link do Vídeo ou Playlist").
-				Value(&link).
+				Value(&AppState.Link).
 				Validate(func(str string) error {
 					if !strings.HasPrefix(str, "http") {
 						return errors.New("link inválido!")
@@ -48,22 +40,19 @@ func GetInputs() (string, string, bool, bool) {
 					huh.NewOption("MP3 (Áudio)", "mp3"),
 					huh.NewOption("MP4 (Vídeo)", "mp4"),
 				).
-				Value(&format),
+				Value(&AppState.Format),
 
 			huh.NewConfirm().
 				Title("Baixar playlist completa se o link pertencer a uma?").
 				Affirmative("Sim").
 				Negative("Não").
-				Value(&playlist),
+				Value(&AppState.Playlist),
+
+			huh.NewInput().
+				Title("Digite o nome da subpasta para esse download, deixe vazio para ser na raiz").
+				Value(&AppState.Folder),
 		),
-	).WithTheme(customTheme) // Inline mantém o histórico
+	).WithTheme(customTheme)
 
-	err := form.Run()
-
-	if err != nil {
-		return "", "", false, false
-	}
-
-	return link, format, playlist, true
+	return form.Run()
 }
-
