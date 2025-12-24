@@ -22,6 +22,8 @@ func GetInputs() error {
 	customTheme.Blurred.Title = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 	customTheme.Blurred.SelectedOption = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
 
+	var folder string
+
 	form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
@@ -50,9 +52,19 @@ func GetInputs() error {
 
 			huh.NewInput().
 				Title("Digite o nome da subpasta para esse download, deixe vazio para ser na raiz").
-				Value(&AppState.Folder),
+				Value(&folder),
 		),
 	).WithTheme(customTheme)
 
-	return form.Run()
+	err := form.Run()
+	if err != nil {
+		return err
+	}
+
+	AppState.OutputDir = "./downloads"
+	if folder != "" {
+		AppState.OutputDir += "/" + folder
+	}
+
+	return nil
 }

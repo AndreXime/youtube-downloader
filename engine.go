@@ -6,41 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 )
-
-var OutputDir = "./downloads"
-
-// Gerencia as 9 linhas do terminal
-func MonitorProgress(stream <-chan string) {
-	const maxLines = 9
-	buffer := []string{}
-	lastHeight := 0
-
-	for line := range stream {
-		text := strings.TrimSpace(line)
-		if text == "" {
-			continue
-		}
-
-		buffer = append(buffer, text)
-		if len(buffer) > maxLines {
-			buffer = buffer[len(buffer)-maxLines:]
-		}
-
-		if lastHeight > 0 {
-			fmt.Printf("\033[%dA\033[J", lastHeight)
-		}
-
-		for _, l := range buffer {
-			if len(l) > 100 {
-				l = l[:97] + "..."
-			}
-			fmt.Println(l)
-		}
-		lastHeight = len(buffer)
-	}
-}
 
 func CheckDeps() error {
 	for _, bin := range []string{"yt-dlp", "node", "ffmpeg"} {
@@ -53,10 +19,11 @@ func CheckDeps() error {
 
 func Run(stream chan<- string) error {
 	defer close(stream)
-	if AppState.Folder != "" {
-		OutputDir += "/" + AppState.Folder
+
+	// Cria a pasta
+	if err := os.MkdirAll(AppState.OutputDir, os.ModePerm); err != nil {
+		return fmt.Errorf("Erro ao criar pasta: %v", err)
 	}
-	os.MkdirAll(OutputDir, os.ModePerm)
 
 	// Monta argumentos
 	args := []string{"--no-warnings"}
@@ -73,7 +40,7 @@ func Run(stream chan<- string) error {
 	}
 
 	args = append(args, "--add-metadata", "--embed-thumbnail", "--js-runtime", "node",
-		"--extractor-args", "youtube:player_client=ios,web", "-o", fmt.Sprintf("%s/%%(title)s.%%(ext)s", OutputDir))
+		"--extractor-args", "youtube:player_client=ios,web", "-o", fmt.Sprintf("%s/%%(title)s.%%(ext)s", AppState.OutputDir))
 	args = append(args, AppState.Link)
 
 	// Executa

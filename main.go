@@ -5,10 +5,10 @@ import (
 )
 
 var AppState struct {
-	Link     string
-	Format   string
-	Playlist bool
-	Folder   string
+	Link      string
+	Format    string
+	Playlist  bool
+	OutputDir string
 }
 
 func main() {
@@ -24,9 +24,6 @@ func main() {
 		return
 	}
 
-	fmt.Println(Inf.Render("Iniciando... (ctrl+z para encerrar)"))
-
-	// Prepara canais
 	progressCh := make(chan string)
 	errCh := make(chan error)
 
